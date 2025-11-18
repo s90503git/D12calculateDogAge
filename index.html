@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>妙麗歲數計算機</title>
+
+  <style>
+    body {
+      font-family: "Noto Sans TC", sans-serif;
+      background: #f7f7f7;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 420px;
+      margin: auto;
+      padding: 25px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      margin-top: 12px;
+      display: block;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 18px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: #357abd;
+    }
+
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #eef6ff;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .source {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #666;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>妙麗歲數計算機</h1>
+
+    <label for="birthDate">狗狗的出生日期（西元）</label>
+    <input type="date" id="birthDate">
+
+    <label for="size">狗狗體型</label>
+    <select id="size">
+      <option value="small">小型犬</option>
+      <option value="medium">中型犬</option>
+      <option value="large">大型犬</option>
+    </select>
+
+    <button id="calcBtn">開始計算</button>
+
+    <div id="result" class="result"></div>
+
+    <p class="source">
+      參考來源：美國犬業俱樂部（AKC）<br>
+      https://www.akcpetinsurance.com/blog/year-of-the-dog
+    </p>
+  </div>
+
+  <script>
+    // 狗狗年齡換算表
+    const dogAgeMap = {
+      small: [0,15,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80],
+      medium: [0,15,24,28,32,36,42,47,51,56,60,65,69,74,78,83,87],
+      large: [0,15,24,28,32,36,45,50,55,61,66,72,77,82,88,93,120]
+    };
+
+    // 計算狗狗實際年齡
+    function calculateDogAge(birthDate) {
+      const today = new Date();
+      const birth = new Date(birthDate);
+
+      let age = today.getFullYear() - birth.getFullYear();
+      const m = today.getMonth() - birth.getMonth();
+
+      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      return age < 0 ? 0 : age;
+    }
+
+    // 顯示結果（也可用於讀取 localStorage 時）
+    function showResult(age, humanAge) {
+      const resultDiv = document.getElementById("result");
+      resultDiv.style.display = "block";
+      resultDiv.innerHTML = `
+        <strong>🐶 狗狗實際年齡：</strong> ${age} 歲<br>
+        <strong>👨‍🦳 換算人類年齡：</strong> ${humanAge} 歲
+      `;
+    }
+
+    // 主程式 - 按下計算
+    document.getElementById("calcBtn").addEventListener("click", function () {
+      const birthDate = document.getElementById("birthDate").value;
+      const size = document.getElementById("size").value;
+      const resultDiv = document.getElementById("result");
+
+      if (!birthDate) {
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = "請先輸入狗狗的出生日期！";
+        return;
+      }
+
+      const age = calculateDogAge(birthDate);
+      const humanAgeTable = dogAgeMap[size];
+      const humanAge = age <= 16 ? humanAgeTable[age] : humanAgeTable[16];
+
+      // 顯示結果
+      showResult(age, humanAge);
+
+      // ★★★ 把資料存進 localStorage ★★★
+      localStorage.setItem("dogBirthDate", birthDate);
+      localStorage.setItem("dogSize", size);
+      localStorage.setItem("dogAge", age);
+      localStorage.setItem("humanAge", humanAge);
+    });
+
+    // ★★★ 載入頁面時，自動帶入上次記錄 ★★★
+    window.addEventListener("load", function () {
+      const savedBirth = localStorage.getItem("dogBirthDate");
+      const savedSize = localStorage.getItem("dogSize");
+      const savedDogAge = localStorage.getItem("dogAge");
+      const savedHumanAge = localStorage.getItem("humanAge");
+
+      if (savedBirth && savedSize && savedDogAge && savedHumanAge) {
+        document.getElementById("birthDate").value = savedBirth;
+        document.getElementById("size").value = savedSize;
+
+        showResult(savedDogAge, savedHumanAge);
+      }
+    });
+  </script>
+</body>
+</html>
