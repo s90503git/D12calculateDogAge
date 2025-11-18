@@ -6,67 +6,94 @@
   <title>妙麗歲數計算機</title>
 
   <style>
+    /* HappyHues Palette #16 主要色系 */
+    :root {
+      --bg: #f7e9e3;
+      --card-bg: #f4d4c3;
+      --primary: #8b6d9c;
+      --primary-dark: #4d4c7d;
+      --input-bg: #ffffff;
+      --result-bg: #f7e9e3;
+      --text-dark: #4d4c7d;
+      --text-light: #6e5a77;
+    }
+
     body {
       font-family: "Noto Sans TC", sans-serif;
-      background: #f7f7f7;
+      background: var(--bg);
       padding: 40px;
+      color: var(--text-dark);
     }
 
     .container {
       max-width: 420px;
       margin: auto;
       padding: 25px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+      backdrop-filter: blur(3px);
     }
 
     h1 {
       text-align: center;
       margin-bottom: 20px;
+      color: var(--primary-dark);
+      letter-spacing: 1px;
     }
 
     label {
       margin-top: 12px;
       display: block;
+      font-weight: 600;
+      color: var(--primary-dark);
     }
 
     input, select {
       width: 100%;
       padding: 10px;
       margin-top: 6px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      border-radius: 10px;
+      border: 1px solid #c69fa5;
+      background: var(--input-bg);
+      color: var(--text-dark);
+      font-size: 15px;
     }
 
     button {
       width: 100%;
       padding: 12px;
       margin-top: 18px;
-      background: #4a90e2;
+      background: var(--primary);
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 17px;
+      font-weight: 600;
+      transition: 0.2s;
     }
 
     button:hover {
-      background: #357abd;
+      background: var(--primary-dark);
     }
 
     .result {
       margin-top: 20px;
       padding: 15px;
-      background: #eef6ff;
-      border-radius: 8px;
+      background: var(--result-bg);
+      border-radius: 10px;
+      border: 1px solid #c69fa5;
       display: none;
+      color: var(--text-light);
+      font-size: 16px;
+      line-height: 1.6;
     }
 
     .source {
       margin-top: 20px;
       font-size: 13px;
-      color: #666;
+      color: var(--text-light);
       text-align: center;
     }
   </style>
@@ -104,20 +131,18 @@
       large: [0,15,24,28,32,36,45,50,55,61,66,72,77,82,88,93,120]
     };
 
-    // ★★★ 計算狗狗實際年齡（含小數） ★★★
+    // 計算狗狗實際年齡（含小數）
     function calculateDogAge(birthDate) {
       const today = new Date();
       const birth = new Date(birthDate);
 
-      const diffMs = today - birth; // 毫秒差
+      const diffMs = today - birth; 
       const days = diffMs / (1000 * 60 * 60 * 24);
+      const age = days / 365.25;
 
-      const age = days / 365.25; // 換成年（含小數）
-
-      return age < 0 ? 0 : parseFloat(age.toFixed(1)); // 保留 1 位小數
+      return age < 0 ? 0 : parseFloat(age.toFixed(1));
     }
 
-    // 顯示結果
     function showResult(age, humanAge) {
       const resultDiv = document.getElementById("result");
       resultDiv.style.display = "block";
@@ -127,7 +152,6 @@
       `;
     }
 
-    // 主程式 - 按下計算
     document.getElementById("calcBtn").addEventListener("click", function () {
       const birthDate = document.getElementById("birthDate").value;
       const size = document.getElementById("size").value;
@@ -142,26 +166,24 @@
       const age = calculateDogAge(birthDate);
       const humanAgeTable = dogAgeMap[size];
 
-      // ★★★ 新：人類年齡支援小數點（線性插值） ★★★
       const baseAge = Math.floor(age);
       const nextAge = Math.min(baseAge + 1, 16);
-
       const baseHuman = humanAgeTable[baseAge];
       const nextHuman = humanAgeTable[nextAge];
 
-      const fraction = age - baseAge;  
+      const fraction = age - baseAge;
       const humanAge = parseFloat((baseHuman + (nextHuman - baseHuman) * fraction).toFixed(1));
 
       showResult(age, humanAge);
 
-      // ★★★ 存入 localStorage ★★★
+      // 保存到 localStorage
       localStorage.setItem("dogBirthDate", birthDate);
       localStorage.setItem("dogSize", size);
       localStorage.setItem("dogAge", age);
       localStorage.setItem("humanAge", humanAge);
     });
 
-    // ★★★ 載入頁面時，自動帶入上次記錄 ★★★
+    // 載入上次結果
     window.addEventListener("load", function () {
       const savedBirth = localStorage.getItem("dogBirthDate");
       const savedSize = localStorage.getItem("dogSize");
