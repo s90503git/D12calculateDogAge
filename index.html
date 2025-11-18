@@ -6,7 +6,7 @@
   <title>妙麗歲數計算機</title>
 
   <style>
-    /* HappyHues Palette #16 主要色系 */
+    /* HappyHues Palette #16 */
     :root {
       --bg: #f7e9e3;
       --card-bg: #f4d4c3;
@@ -33,6 +33,13 @@
       border-radius: 16px;
       box-shadow: 0 4px 18px rgba(0,0,0,0.08);
       backdrop-filter: blur(3px);
+    }
+
+    .top-img {
+      width: 100%;
+      border-radius: 14px;
+      margin-bottom: 18px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.12);
     }
 
     h1 {
@@ -101,6 +108,14 @@
 
 <body>
   <div class="container">
+
+    <!-- 🐶 新增插圖（確保可正常顯示） -->
+    <img 
+      class="top-img" 
+      src="https://images.unsplash.com/photo-1601758173923-1961d134d1ae?auto=format&fit=crop&w=800&q=80" 
+      alt="可愛狗狗插圖"
+    >
+
     <h1>妙麗歲數計算機</h1>
 
     <label for="birthDate">狗狗的出生日期（西元）</label>
@@ -135,11 +150,9 @@
     function calculateDogAge(birthDate) {
       const today = new Date();
       const birth = new Date(birthDate);
-
-      const diffMs = today - birth; 
+      const diffMs = today - birth;
       const days = diffMs / (1000 * 60 * 60 * 24);
       const age = days / 365.25;
-
       return age < 0 ? 0 : parseFloat(age.toFixed(1));
     }
 
@@ -176,14 +189,12 @@
 
       showResult(age, humanAge);
 
-      // 保存到 localStorage
       localStorage.setItem("dogBirthDate", birthDate);
       localStorage.setItem("dogSize", size);
       localStorage.setItem("dogAge", age);
       localStorage.setItem("humanAge", humanAge);
     });
 
-    // 載入上次結果
     window.addEventListener("load", function () {
       const savedBirth = localStorage.getItem("dogBirthDate");
       const savedSize = localStorage.getItem("dogSize");
@@ -193,7 +204,6 @@
       if (savedBirth && savedSize && savedDogAge && savedHumanAge) {
         document.getElementById("birthDate").value = savedBirth;
         document.getElementById("size").value = savedSize;
-
         showResult(savedDogAge, savedHumanAge);
       }
     });
