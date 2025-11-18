@@ -104,21 +104,20 @@
       large: [0,15,24,28,32,36,45,50,55,61,66,72,77,82,88,93,120]
     };
 
-    // 計算狗狗實際年齡
+    // ★★★ 計算狗狗實際年齡（含小數） ★★★
     function calculateDogAge(birthDate) {
       const today = new Date();
       const birth = new Date(birthDate);
 
-      let age = today.getFullYear() - birth.getFullYear();
-      const m = today.getMonth() - birth.getMonth();
+      const diffMs = today - birth; // 毫秒差
+      const days = diffMs / (1000 * 60 * 60 * 24);
 
-      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-        age--;
-      }
-      return age < 0 ? 0 : age;
+      const age = days / 365.25; // 換成年（含小數）
+
+      return age < 0 ? 0 : parseFloat(age.toFixed(1)); // 保留 1 位小數
     }
 
-    // 顯示結果（也可用於讀取 localStorage 時）
+    // 顯示結果
     function showResult(age, humanAge) {
       const resultDiv = document.getElementById("result");
       resultDiv.style.display = "block";
@@ -142,12 +141,20 @@
 
       const age = calculateDogAge(birthDate);
       const humanAgeTable = dogAgeMap[size];
-      const humanAge = age <= 16 ? humanAgeTable[age] : humanAgeTable[16];
 
-      // 顯示結果
+      // ★★★ 新：人類年齡支援小數點（線性插值） ★★★
+      const baseAge = Math.floor(age);
+      const nextAge = Math.min(baseAge + 1, 16);
+
+      const baseHuman = humanAgeTable[baseAge];
+      const nextHuman = humanAgeTable[nextAge];
+
+      const fraction = age - baseAge;  
+      const humanAge = parseFloat((baseHuman + (nextHuman - baseHuman) * fraction).toFixed(1));
+
       showResult(age, humanAge);
 
-      // ★★★ 把資料存進 localStorage ★★★
+      // ★★★ 存入 localStorage ★★★
       localStorage.setItem("dogBirthDate", birthDate);
       localStorage.setItem("dogSize", size);
       localStorage.setItem("dogAge", age);
